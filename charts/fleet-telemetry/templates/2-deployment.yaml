@@ -37,12 +37,10 @@ spec:
         image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
         livenessProbe:
           failureThreshold: 5
-          # fleet-telemetry >= v0.9 no longer serves prometheus metrics on
-          # config.metrics.port, so an httpGet /metrics probe there always fails
-          # and crashloops the pod. Liveness = "is the server accepting vehicle
-          # connections", so TCP-check the main TLS port instead.
-          tcpSocket:
-            port: {{ .Values.config.port }}
+          httpGet:
+            path: /metrics
+            port: {{ .Values.config.metrics.port }}
+            scheme: HTTP
           initialDelaySeconds: 5
           timeoutSeconds: 10
         readinessProbe:
